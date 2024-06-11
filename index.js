@@ -163,8 +163,8 @@ app.post('/api/object_removal/v5/erase_watermark', upload.fields([
     // Handle form data with image
     const uploadedFiles = req.files;
     const original_preview_image = uploadedFiles['original_preview_image'][0];
-    const mask_base = uploadedFiles['mask_base'][0];
-    const mask_brush = uploadedFiles['mask_brush'][0];
+    const mask_base = uploadedFiles['mask_base'] ? uploadedFiles['mask_base'][0] : null;
+    const mask_brush = uploadedFiles['mask_brush'] ? uploadedFiles['mask_brush'][0] : null;
     try {
       const imageStream = fs.createReadStream(original_preview_image.path);
 
