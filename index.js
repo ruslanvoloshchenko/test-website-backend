@@ -19,7 +19,7 @@ const upload = multer({ dest: 'uploads/' });
 
 //app.use(morgan('dev')); // Console logging
 app.use(morgan('combined', { stream: accessLogStream }));
-app.use('/', express.static('html'));
+app.use('/', express.static('dist'));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
