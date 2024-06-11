@@ -155,7 +155,7 @@ app.post('/api/checkout/prices', async function(req, res) {
 
 app.post('/api/object_removal/v5/erase_watermark', upload.fields([
   { name: 'original_preview_image', maxCount: 1 },
-  { name: 'mask_base', maxCount: 1 }
+  { name: 'mask_base', maxCount: 1 },
   { name: 'mask_brush', maxCount: 1 }
 ]), async function(req, res) {
   try {
