@@ -4,8 +4,12 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const multer = require('multer');
 const fs = require('fs')
+const morgan = require('morgan');
 const FormData = require('form-data');
+const path = require('path')
 const { createProxyMiddleware } = require('http-proxy-middleware');
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 const API_URL = "https://api.dewatermark.ai/api"
 
@@ -13,7 +17,9 @@ const app = express()
 
 const upload = multer({ dest: 'uploads/' });
 
-
+//app.use(morgan('dev')); // Console logging
+app.use(morgan('combined', { stream: accessLogStream }));
+app.use('/', express.static('html'));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -147,29 +153,34 @@ app.post('/api/checkout/prices', async function(req, res) {
 
 })
 
-app.post('/api/object_removal/v5/erase_watermark', upload.single('original_preview_image'), async function(req, res) {
+app.post('/api/object_removal/v5/erase_watermark', upload.fields([
+  { name: 'original_preview_image', maxCount: 1 },
+  { name: 'mask_base', maxCount: 1 }
+  { name: 'mask_brush', maxCount: 1 }
+]), async function(req, res) {
   try {
     const { headers } = req
     // Handle form data with image
-    const { name } = req.body; // Assuming you have other form fields
-
-    // Access uploaded image file
-    const image = req.file;
-
-    console.log(image)
-
-    const formData = req.body;
-
-    // Access the image file
-    console.log(formData)
-
+    const uploadedFiles = req.files;
+    const original_preview_image = uploadedFiles['original_preview_image'][0];
+    const mask_base = uploadedFiles['mask_base'][0];
+    const mask_brush = uploadedFiles['mask_brush'][0];
     try {
-      const imageStream = fs.createReadStream(image.path);
+      const imageStream = fs.createReadStream(original_preview_image.path);
 
       // Send the form data with image to another site using Axios
       const formData = new FormData();
-      formData.append('zoom_factor', 2);
       formData.append('original_preview_image', imageStream);
+      if(mask_base) {
+        const mask_baseStream = fs.createReadStream(mask_base.path);
+        formData.append('mask_base', mask_baseStream);
+      }
+      if(mask_brush) {
+        const mask_brushStream = fs.createReadStream(mask_brush.path);
+        formData.append('mask_brush', mask_brushStream);
+      }
+      if(!mask_base && !mask_brush) 
+        formData.append('zoom_factor', 2);
 
       const options = {
         method: 'POST',
@@ -195,4 +206,4 @@ app.post('/api/object_removal/v5/erase_watermark', upload.single('original_previ
   }
 })
 
-app.listen(8000)
+app.listen(8000, '0.0.0.0', () => { console.log("server stared!") })
