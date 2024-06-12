@@ -4,9 +4,11 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const multer = require('multer');
 const fs = require('fs')
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const FormData = require('form-data');
 const path = require('path')
+const session = require('express-session');
+
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
@@ -17,8 +19,21 @@ const app = express()
 
 const upload = multer({ dest: 'uploads/' });
 
+app.use(session({
+  secret: '123qweasdf',
+  resave: false,
+  saveUninitialized: true,
+}));
+
+const user = {
+  username: 'admin',
+  password: 'password'
+};
+
 //app.use(morgan('dev')); // Console logging
-app.use(morgan('combined', { stream: accessLogStream }));
+// app.use(morgan('combined', { stream: accessLogStream }));
+
+app.use(express.static('views'));
 app.use('/', express.static('dist'));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
@@ -26,6 +41,27 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 // Prevent cors error
 app.use(cors())
+
+app.get('/', (req, res) => {
+  if (req.session.user) {
+    res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  }
+});
+
+
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === user.username && password === user.password) {
+    req.session.user = user;
+    res.redirect('/');
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
+  }
+});
 
 app.get('/api/users/v1/userInfo', async function (req, res) {
   return res.json({
