@@ -32,8 +32,18 @@ app.get('/api/users/v1/userInfo', async function (req, res) {
     "status": "OK",
     "data": {
         "user": {
-            "user_id": "KIm3wECeaBMS5l0LPc9sbl2t4lo1",
-            "email": "voloshchenkoruslan0@gmail.com"
+            "subscription": {
+                "created_at": 1716635174,
+                "subscription_id": "sub_01hyqpt3d9t00n0dy3bwe6tnd2",
+                "valid_to": 1748171110,
+                "subscription_plan_id": "pro_01hymkz43gf1ve3m9mcr3nhp92",
+                "billing_cycle": "year",
+                "price_id": "pri_01hymmfncf061k00b02tw34mhq",
+                "status": "active"
+            },
+            "user_id": "R0fcUv9llWZaCUYvv7NpphDdtdc2",
+            "email": "d.costigan.work@gmail.com",
+            "api_key": "b2e1a7dff6da652800cdb203ad872e127fe1a32f6d7860181ff700892d362741"
         }
     }
 })
