@@ -66,19 +66,12 @@ app.post('/login', async (req, res) => {
   };
   try {
     var response = await axios.request(config);
-    console.log(response.data)
-    res.send("Hello")
+    req.session.user = user;
+    res.redirect('/');
   } catch(error) {
     console.log(error)
     res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
   }
-  
-  // if (username === user.username && password === user.password) {
-  //   req.session.user = user;
-  //   res.redirect('/');
-  // } else {
-  //   res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
-  // }
 });
 
 app.get('/api/users/v1/userInfo', async function (req, res) {
