@@ -64,9 +64,19 @@ app.post('/login', async (req, res) => {
     },
     timeout: 30000, // Adjust the timeout value as needed (in milliseconds)
   };
-
-  var response = await axios.request(config);
-  res.json(response.data)
+  try {
+    var response = await axios.request(config);
+    res.json(JSON.parse(response.data))
+  } catch(error) {
+    res.json("Send error")
+  }
+  
+  // if (username === user.username && password === user.password) {
+  //   req.session.user = user;
+  //   res.redirect('/');
+  // } else {
+  //   res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
+  // }
 });
 
 app.get('/api/users/v1/userInfo', async function (req, res) {
