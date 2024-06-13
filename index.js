@@ -44,6 +44,7 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
+  console.log(req.headers)
   if (req.headers['X-Login']) {
     res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
   } else {
