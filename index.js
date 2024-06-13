@@ -66,7 +66,7 @@ app.post('/login', async (req, res) => {
   };
   try {
     var response = await axios.request(config);
-    console.log(config.data);
+    console.log(response.data);
     req.session.user = username;
     res.redirect('/');
   } catch(error) {
