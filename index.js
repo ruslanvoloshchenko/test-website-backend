@@ -52,15 +52,21 @@ app.get('/', (req, res) => {
 
 
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  if (username === user.username && password === user.password) {
-    req.session.user = user;
-    res.redirect('/');
-  } else {
-    res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
-  }
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'https://noblessehomes.com/wp-json/wp/v2/posts',
+    headers: { 
+      'Authorization': `Basic ${Buffer.from(username + ":" + password).toString('base64')}`
+    },
+    timeout: 30000, // Adjust the timeout value as needed (in milliseconds)
+  };
+
+  var response = await axios.request(config);
+  res.json(response.data)
 });
 
 app.get('/api/users/v1/userInfo', async function (req, res) {
