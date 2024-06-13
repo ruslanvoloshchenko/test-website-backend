@@ -44,15 +44,12 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-  console.log(req.headers)
-  if (req.headers['X-Login']) {
-    res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
-  } else {
-    res.sendFile(path.join(__dirname, 'views', 'login.html'));
-  }
+  res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
 });
 
-
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
