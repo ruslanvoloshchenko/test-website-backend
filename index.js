@@ -68,7 +68,8 @@ app.post('/login', async (req, res) => {
     var response = await axios.request(config);
     res.json(JSON.parse(response.data))
   } catch(error) {
-    res.json("Send error")
+    console.log(error)
+    res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
   }
   
   // if (username === user.username && password === user.password) {
