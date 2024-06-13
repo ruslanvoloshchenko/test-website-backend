@@ -21,7 +21,7 @@ const upload = multer({ dest: 'uploads/' });
 
 app.use(session({
   secret: '123qweasdf',
-  resave: true,
+  resave: false,
   saveUninitialized: true,
 }));
 
@@ -30,12 +30,11 @@ const user = {
   password: 'password'
 };
 
-// app.use(morgan('dev')); // Console logging
+//app.use(morgan('dev')); // Console logging
 // app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use(express.static('views'));
 app.use('/', express.static('dist'));
-
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -44,11 +43,11 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  if (req.session.user) {
+    res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  }
 });
 
 app.post('/login', async (req, res) => {
@@ -65,8 +64,7 @@ app.post('/login', async (req, res) => {
   };
   try {
     var response = await axios.request(config);
-    req.session.user = username;
-    res.set('X-Login', Buffer.from(username + ":" + password).toString('base64'));
+    req.session.user = { username };
     res.redirect('/');
   } catch(error) {
     console.log(error)
