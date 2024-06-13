@@ -21,7 +21,7 @@ const upload = multer({ dest: 'uploads/' });
 
 app.use(session({
   secret: '123qweasdf',
-  resave: false,
+  resave: true,
   saveUninitialized: true,
 }));
 
@@ -30,11 +30,12 @@ const user = {
   password: 'password'
 };
 
-//app.use(morgan('dev')); // Console logging
+// app.use(morgan('dev')); // Console logging
 // app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use(express.static('views'));
 app.use('/', express.static('dist'));
+
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -43,7 +44,8 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-  if (req.query.info) {
+  if (req.session.user) {
+    console.log(req.session.user)
     res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
   } else {
     res.sendFile(path.join(__dirname, 'views', 'login.html'));
@@ -66,9 +68,9 @@ app.post('/login', async (req, res) => {
   };
   try {
     var response = await axios.request(config);
-    console.log(response.data);
     req.session.user = username;
-    res.redirect(`/?info=${Buffer.from(username + ":" + password).toString('base64')}`);
+    console.log(req.session.user)
+    res.redirect('/');
   } catch(error) {
     console.log(error)
     res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
