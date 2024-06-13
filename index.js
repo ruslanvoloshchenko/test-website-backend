@@ -66,7 +66,8 @@ app.post('/login', async (req, res) => {
   };
   try {
     var response = await axios.request(config);
-    res.json(JSON.parse(response.data))
+    console.log(response.data)
+    res.send("Hello")
   } catch(error) {
     console.log(error)
     res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
