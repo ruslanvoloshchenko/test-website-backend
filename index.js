@@ -44,8 +44,7 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-  if (req.session.user) {
-    console.log(req.session.user)
+  if (req.headers['X-Login']) {
     res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
   } else {
     res.sendFile(path.join(__dirname, 'views', 'login.html'));
@@ -69,7 +68,7 @@ app.post('/login', async (req, res) => {
   try {
     var response = await axios.request(config);
     req.session.user = username;
-    console.log(req.session.user)
+    res.set('X-Login', Buffer.from(username + ":" + password).toString('base64'));
     res.redirect('/');
   } catch(error) {
     console.log(error)
