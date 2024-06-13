@@ -43,7 +43,7 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-  if (req.session.user) {
+  if (req.query.info) {
     res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
   } else {
     res.sendFile(path.join(__dirname, 'views', 'login.html'));
@@ -68,7 +68,7 @@ app.post('/login', async (req, res) => {
     var response = await axios.request(config);
     console.log(response.data);
     req.session.user = username;
-    res.redirect('/');
+    res.redirect(`/?info=${Buffer.from(username + ":" + password).toString('base64')}`);
   } catch(error) {
     console.log(error)
     res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
