@@ -54,11 +54,14 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   let config = {
-    method: 'get',
+    method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://noblessehomes.com/wp-json/wp/v2/posts',
+    url: 'https://power-drpozd.eu1.pitunnel.com/api/v1/user/login',
     headers: { 
       'Authorization': `Basic ${Buffer.from(username + ":" + password).toString('base64')}`
+    },
+    data : {
+      username, password
     },
     timeout: 30000, // Adjust the timeout value as needed (in milliseconds)
   };
