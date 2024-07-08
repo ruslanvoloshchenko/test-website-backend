@@ -67,8 +67,12 @@ app.post('/login', async (req, res) => {
   };
   try {
     var response = await axios.request(config);
-    req.session.user = { username };
-    res.redirect('/');
+    if(response.id) {
+      req.session.user = { username };
+      res.redirect('/');
+    } else {
+      res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
+    }
   } catch(error) {
     console.log(error)
     res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
