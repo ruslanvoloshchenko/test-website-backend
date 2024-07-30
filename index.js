@@ -18,6 +18,7 @@ const API_URL = "https://api.dewatermark.ai/api"
 const app = express()
 
 const upload = multer({ dest: 'uploads/' });
+let referer = null;
 
 app.use(session({
   secret: '123qweasdf',
@@ -43,6 +44,8 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
+  referer = req.query.referer || null;
+  
   if (req.session.user) {
     res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
   } else {
@@ -57,7 +60,7 @@ app.post('/login', async (req, res) => {
     method: 'post',
     maxBodyLength: Infinity,
     url: 'https://power-drpozd.eu1.pitunnel.com/api/v1/user/login',
-    headers: { 
+    headers: {
       'Authorization': `Basic ${Buffer.from(username + ":" + password).toString('base64')}`
     },
     data : {
@@ -69,7 +72,19 @@ app.post('/login', async (req, res) => {
     var response = await axios.request(config);
     if(response.data.id) {
       req.session.user = { username };
-      res.redirect('/');
+
+      if(referer) {
+        res.cookie('user',username, {
+          maxAge: 86400000,    // 1 day
+          httpOnly: true,      // Accessible only through HTTP
+          secure: true,        // Sent only over HTTPS
+          path: '/',           // Available throughout the entire website
+          domain: '.eu1.pitunnel.com' // Available on this domain
+        });
+        res.redirect(referer);
+      }
+      else
+        res.redirect('/');
     } else {
       res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
     }
@@ -104,7 +119,7 @@ app.get('/api/users/v1/userInfo', async function (req, res) {
     const options = {
       method: 'GET',
       headers: {
-        'content-type': 'application/json', 
+        'content-type': 'application/json',
         'X-Firebase-Token': headers['x-firebase-token'],
         authorization: headers['authorization'],
       },
@@ -199,8 +214,8 @@ app.post('/api/checkout/prices', async function(req, res) {
       method: 'post',
       maxBodyLength: Infinity,
       url: 'https://api.dewatermark.ai/api/checkout/prices',
-      headers: { 
-        'content-type': 'application/json', 
+      headers: {
+        'content-type': 'application/json',
       },
       data : data,
       timeout: 30000, // Adjust the timeout value as needed (in milliseconds)
@@ -241,13 +256,13 @@ app.post('/api/object_removal/v5/erase_watermark', upload.fields([
         const mask_brushStream = fs.createReadStream(mask_brush.path);
         formData.append('mask_brush', mask_brushStream);
       }
-      if(!mask_base && !mask_brush) 
+      if(!mask_base && !mask_brush)
         formData.append('zoom_factor', 2);
 
       const options = {
         method: 'POST',
         headers: {
-          ...formData.getHeaders(), 
+          ...formData.getHeaders(),
           'X-Firebase-Token': headers['x-firebase-token'],
           authorization: headers['authorization'],
         },
@@ -261,7 +276,7 @@ app.post('/api/object_removal/v5/erase_watermark', upload.fields([
       console.error('Error reading file:', err);
       res.json(err);
     }
-    
+
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });
