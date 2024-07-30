@@ -45,7 +45,7 @@ app.use(cors())
 
 app.get('/', (req, res) => {
   referer = req.query.referer || null;
-  
+
   if (req.session.user) {
     res.sendFile(path.join(__dirname, 'dist', 'index1.html'));
   } else {
@@ -71,8 +71,6 @@ app.post('/login', async (req, res) => {
   try {
     var response = await axios.request(config);
     if(response.data.id) {
-      req.session.user = { username };
-
       if(referer) {
         res.cookie('user',username, {
           maxAge: 86400000,    // 1 day
@@ -83,8 +81,10 @@ app.post('/login', async (req, res) => {
         });
         res.redirect(referer);
       }
-      else
+      else {
+        req.session.user = { username };
         res.redirect('/');
+      }
     } else {
       res.sendFile(path.join(__dirname, 'views', 'login.html'), { error: 'Invalid credentials' });
     }
